@@ -11,6 +11,5 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/down', 'Switches\HandlerController@down');
+Route::get('/up', 'Switches\HandlerController@up');
