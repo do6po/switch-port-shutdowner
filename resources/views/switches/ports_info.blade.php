@@ -5,12 +5,12 @@
 <table class="table table-bordered table-striped table-hover">
     <tbody>
     @foreach ($portStatuses as $portStatus)
-        <tr>
-            <td>
+        <tr class="font-weight-bold">
+            <td class="col-6">
                 {{ $portStatus->getPortIndex() }}
             </td>
-            <td class="col-3 {{ $portStatus->isUp() ? 'table-success' : 'table-danger' }}">
-
+            <td class="col-6 {{ $portStatus->isUp() ? 'bg-success' : 'bg-danger' }}">
+                    {{ $portStatus->isUp() ? 'Up' : 'Down' }}
             </td>
         </tr>
     @endforeach

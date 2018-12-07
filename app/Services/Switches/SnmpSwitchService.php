@@ -9,9 +9,10 @@
 namespace App\Services\Switches;
 
 
+use App\Collections\Switches\SnmpSwitchCollection;
+use App\Collections\Switches\SwitchConnectionCollection;
 use App\Models\Switches\SnmpSwitch;
-use App\Repositories\Switches\SwitchConfigRepository;
-use App\Repositories\Switches\SwitchConnectionRepository;
+use App\Models\Switches\SwitchConnection;
 
 /**
  * Class SnmpSwitchService
@@ -19,35 +20,21 @@ use App\Repositories\Switches\SwitchConnectionRepository;
  */
 class SnmpSwitchService
 {
-    /**
-     * @var SwitchConfigRepository
-     */
-    protected $switchConfigRepository;
+    const ACTION_UP = 'up';
+
+    const ACTION_DOWN = 'down';
 
     /**
-     * @var SwitchConnectionRepository
-     */
-    protected $switchConnectionRepository;
-
-    public function __construct(SwitchConfigRepository $switchConfigRepository, SwitchConnectionRepository $switchConnectionRepository)
-    {
-        $this->switchConfigRepository = $switchConfigRepository;
-        $this->switchConnectionRepository = $switchConnectionRepository;
-    }
-
-    /**
-     * @return array
+     * @param SwitchConnectionCollection $switchConnections
+     * @return SnmpSwitchCollection|SwitchConnection[]
      * @throws \App\Exceptions\Collections\NotAllowedTypeException
+     * @throws \App\Exceptions\Collections\NotFoundClassException
      */
-    public function getAllStatuses()
+    public function getSnmpSwitches(SwitchConnectionCollection $switchConnections): SnmpSwitchCollection
     {
         $result = [];
 
-        $switchConfigCollection = $this->switchConfigRepository->getAllEnabled();
-
-        $switchConnectionCollection = $this->switchConnectionRepository->connectTo($switchConfigCollection);
-
-        foreach ($switchConnectionCollection as $switchConnection) {
+        foreach ($switchConnections as $switchConnection) {
             $result[] = SnmpSwitch::create(
                 $switchConnection->getSwitchConfig(),
                 $switchConnection->getSwitchStatus(),
@@ -55,7 +42,37 @@ class SnmpSwitchService
             );
         }
 
+        return new SnmpSwitchCollection($result);
+    }
 
-        return $result;
+    /**
+     * @param SwitchConnectionCollection $switchConnections
+     */
+    public function setDown(SwitchConnectionCollection $switchConnections): void
+    {
+        $this->handleByActionType($switchConnections, self::ACTION_DOWN);
+    }
+
+    /**
+     * @param SwitchConnectionCollection $switchConnections
+     */
+    public function setUp(SwitchConnectionCollection $switchConnections): void
+    {
+        $this->handleByActionType($switchConnections,self::ACTION_UP);
+    }
+
+    /**
+     * @param SwitchConnectionCollection $switchConnections
+     * @param string $actionType
+     */
+    public function handleByActionType(SwitchConnectionCollection $switchConnections, string $actionType)
+    {
+        foreach ($switchConnections as $switchConnection) {
+            if ($actionType === self::ACTION_DOWN) {
+                $switchConnection->setProcessingPortsDown();
+            } elseif ($actionType === self::ACTION_UP) {
+                $switchConnection->setProcessingPortsUp();
+            }
+        }
     }
 }

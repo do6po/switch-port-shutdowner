@@ -68,7 +68,7 @@ class SwitchPortStatus
 
     protected function setDown(): self
     {
-        $this->portStatus = self::UP;
+        $this->portStatus = self::DOWN;
 
         return $this;
     }
