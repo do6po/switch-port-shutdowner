@@ -9,6 +9,7 @@
 namespace App\Services\Switches;
 
 
+use App\Models\Switches\SnmpSwitch;
 use App\Repositories\Switches\SwitchConfigRepository;
 use App\Repositories\Switches\SwitchConnectionRepository;
 
@@ -34,6 +35,10 @@ class SnmpSwitchService
         $this->switchConnectionRepository = $switchConnectionRepository;
     }
 
+    /**
+     * @return array
+     * @throws \App\Exceptions\Collections\NotAllowedTypeException
+     */
     public function getAllStatuses()
     {
         $result = [];
@@ -42,7 +47,15 @@ class SnmpSwitchService
 
         $switchConnectionCollection = $this->switchConnectionRepository->connectTo($switchConfigCollection);
 
-        dd($switchConnectionCollection);
+        foreach ($switchConnectionCollection as $switchConnection) {
+            $result[] = SnmpSwitch::create(
+                $switchConnection->getSwitchConfig(),
+                $switchConnection->getSwitchStatus(),
+                $switchConnection->getPortsStatus()
+            );
+        }
+
+
         return $result;
     }
 }

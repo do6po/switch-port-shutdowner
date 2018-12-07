@@ -30,6 +30,7 @@ class SwitchController extends Controller
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \App\Exceptions\Collections\NotAllowedTypeException
      */
     public function index(Request $request)
     {

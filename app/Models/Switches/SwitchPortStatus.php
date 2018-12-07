@@ -15,6 +15,8 @@ class SwitchPortStatus
 
     const DOWN = 2;
 
+    const UNKNOWN = 0;
+
     protected $portIndex;
 
     protected $portStatus;
@@ -24,6 +26,15 @@ class SwitchPortStatus
         $this->portIndex = $port;
     }
 
+    public static function create(int $port, int $status)
+    {
+        if ($status === self::UP) {
+            return self::up($port);
+        }
+
+        return self::down($port);
+    }
+
     public static function up(int $port): self
     {
         $self = new self($port);
@@ -31,7 +42,7 @@ class SwitchPortStatus
         return $self->setUp();
     }
 
-    protected static function down(int $port): self
+    public static function down(int $port): self
     {
         $self = new self($port);
 

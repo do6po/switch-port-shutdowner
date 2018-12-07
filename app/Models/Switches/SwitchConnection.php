@@ -55,16 +55,19 @@ class SwitchConnection
             $this->switchConfig->snmpCommunity,
             $this->switchConfig->timeout
         );
+
+        $this->connection->quick_print = 1;
     }
 
-    public function established(): bool
+    public function getSwitchStatus(): SwitchStatus
     {
         try {
-            return (bool)$this->connection->get(
+            $this->connection->get(
                 $this->switchConfig->getOidSysUpTime()
             );
+            return SwitchStatus::online();
         } catch (\Exception $exception) {
-            return false;
+            return SwitchStatus::offline();
         }
     }
 
@@ -92,12 +95,31 @@ class SwitchConnection
 
     /**
      * @param int $port
-     * @return bool
+     * @return SwitchPortStatus
      */
-    public function getIfOperStatus(int $port): bool
+    public function getPortStatus(int $port): SwitchPortStatus
     {
-        $oid = sprintf('%s.%s', $this->switchConfig, $port);
-        return $this->connection->get($oid);
+        $oid = sprintf('%s.%s', $this->switchConfig->getOidIfOperStatus(), $port);
+
+        try {
+            return SwitchPortStatus::create($port, $this->connection->get($oid));
+        } catch (\Exception $exception) {
+            return SwitchPortStatus::create($port, SwitchPortStatus::UNKNOWN);
+        }
+    }
+
+    /**
+     * @return array|SwitchPortStatus[]
+     */
+    public function getPortsStatus(): array
+    {
+        $result = [];
+
+        foreach ($this->switchConfig->getPortForProcessing() as $port) {
+            $result[] = $this->getPortStatus($port);
+        }
+
+        return $result;
     }
 
     /**
@@ -117,7 +139,7 @@ class SwitchConnection
      */
     public function isPortDown(int $port): bool
     {
-        return $this->getIfOperStatus($port) == SwitchPortStatus::DOWN;
+        return $this->getPortStatus($port) == SwitchPortStatus::DOWN;
     }
 
     /**
@@ -126,7 +148,13 @@ class SwitchConnection
      */
     public function isPortUp(int $port): bool
     {
-        return $this->getIfOperStatus($port) == SwitchPortStatus::UP;
+        return $this->getPortStatus($port) == SwitchPortStatus::UP;
     }
 
+
+
+    public function getSwitchConfig(): SwitchConfig
+    {
+        return $this->switchConfig;
+    }
 }

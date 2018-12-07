@@ -15,16 +15,17 @@ use App\Models\Switches\SwitchConnection;
 
 class SwitchConnectionRepository
 {
+    /**
+     * @param SwitchConfigCollection $switchConfigCollection
+     * @return SwitchConnectionCollection|SwitchConnection[]
+     * @throws \App\Exceptions\Collections\NotAllowedTypeException
+     */
     public function connectTo(SwitchConfigCollection $switchConfigCollection): SwitchConnectionCollection
     {
         $result = [];
 
         foreach ($switchConfigCollection as $switchConfig) {
-             $connection = SwitchConnection::create($switchConfig);
-
-             if ($connection->established()) {
-                 $result[] = $connection;
-             }
+            $result[] = SwitchConnection::create($switchConfig);
         }
 
         return new SwitchConnectionCollection($result);
