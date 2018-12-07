@@ -6,12 +6,6 @@ use \SNMP;
 
 class SwitchConfig
 {
-    const OID_IF_ADMIN_STATUS = '.1.3.6.1.2.1.2.2.1.7';
-
-    const UP = 1;
-
-    const DOWN = 2;
-
     const ENABLED = true;
 
     const DISABLED = false;
@@ -26,9 +20,12 @@ class SwitchConfig
 
     public $timeout = 1000000; //microseconds
 
-    public $processedPorts = [];
+    protected $processedPorts = [];
 
-    public $enabled = false;
+    protected $enabled = false;
+
+    protected $oidIfOperStatus = '.1.3.6.1.2.1.2.2.1.7';
+    protected $oidSysUpTime = '.1.3.6.1.2.1.1.3.0';
 
     protected function __construct()
     {
@@ -39,23 +36,42 @@ class SwitchConfig
     {
         $switchConfig = new self;
         $switchConfig->name = $config['name'];
-        $switchConfig->name = $config['ip'];
-        $switchConfig->name = $config['snmpCommunity'];
-        $switchConfig->name = $config['snmpVersion'];
-        $switchConfig->name = $config['timeout'];
-        $switchConfig->name = $config['processedPorts'];
-        $switchConfig->name = $config['enabled'];
+        $switchConfig->ip = $config['ip'];
+        $switchConfig->processedPorts = $config['processedPorts'];
+        $switchConfig->enabled = $config['enabled'];
+
+        if (isset($config['snmpCommunity'])) {
+            $switchConfig->snmpCommunity = $config['snmpCommunity'];
+        }
+
+        if (isset($config['snmpVersion'])) {
+            $switchConfig->snmpVersion = $config['snmpVersion'];
+        }
+
+        if (isset($config['timeout'])) {
+            $switchConfig->timeout = $config['timeout'];
+        }
 
         return $switchConfig;
-    }
-
-    public function connect(): bool
-    {
-        return true;
     }
 
     public function isEnabled(): bool
     {
         return $this->enabled === self::ENABLED;
+    }
+
+    public function getPortForProcessing(): array
+    {
+        return $this->processedPorts;
+    }
+
+    public function getOidIfOperStatus(): string
+    {
+        return $this->oidIfOperStatus;
+    }
+
+    public function getOidSysUpTime(): string
+    {
+        return $this->oidSysUpTime;
     }
 }

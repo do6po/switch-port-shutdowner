@@ -7,6 +7,7 @@
  */
 
 namespace App\Models\Switches;
+
 use \SNMP;
 
 /**
@@ -21,26 +22,50 @@ class SwitchConnection
     protected $connection;
 
     /**
+     * @var SwitchConfig
+     */
+    protected $switchConfig;
+
+    /**
      * @param SwitchConfig $switchConfig
      * @return SwitchConnection
      */
-    public static function connect(SwitchConfig $switchConfig)
+    public static function create(SwitchConfig $switchConfig)
     {
         $connection = new self;
-        $connection->connection = new SNMP(
-            $switchConfig->snmpVersion,
-            $switchConfig->ip,
-            $switchConfig->snmpCommunity,
-            $switchConfig->timeout
-        );
+        $connection->setSwitchConfig($switchConfig);
+        $connection->connect();
 
         return $connection;
     }
 
-
-    public function isConnected(): bool
+    /**
+     * @param SwitchConfig $switchConfig
+     */
+    protected function setSwitchConfig(SwitchConfig $switchConfig): void
     {
-        return true;
+        $this->switchConfig = $switchConfig;
+    }
+
+    protected function connect()
+    {
+        $this->connection = new SNMP(
+            $this->switchConfig->snmpVersion,
+            $this->switchConfig->ip,
+            $this->switchConfig->snmpCommunity,
+            $this->switchConfig->timeout
+        );
+    }
+
+    public function established(): bool
+    {
+        try {
+            return (bool)$this->connection->get(
+                $this->switchConfig->getOidSysUpTime()
+            );
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 
     /**
@@ -49,9 +74,9 @@ class SwitchConnection
      * @param int $port
      * @return bool
      */
-    public function up(int $port): bool
+    public function setIfOperStatusDownUp(int $port): bool
     {
-        return $port;
+        return $this->setIfOperStatus($port, SwitchPortStatus::UP);
     }
 
     /**
@@ -60,18 +85,30 @@ class SwitchConnection
      * @param int $port
      * @return string
      */
-    public function down(int $port): string
+    public function setIfOperStatusDown(int $port): string
     {
-        return $port;
+        return $this->setIfOperStatus($port, SwitchPortStatus::DOWN);
     }
 
     /**
      * @param int $port
      * @return bool
      */
-    public function ifOperStatus(int $port): bool
+    public function getIfOperStatus(int $port): bool
     {
-        return true;
+        $oid = sprintf('%s.%s', $this->switchConfig, $port);
+        return $this->connection->get($oid);
+    }
+
+    /**
+     * @param int $port
+     * @param int $status
+     * @return bool
+     */
+    public function setIfOperStatus(int $port, int $status): bool
+    {
+        $oid = sprintf('%s.%s', $this->switchConfig->getOidIfOperStatus(), $port);
+        return $this->connection->set($oid, 'i', $status);
     }
 
     /**
@@ -80,7 +117,7 @@ class SwitchConnection
      */
     public function isPortDown(int $port): bool
     {
-        return true;
+        return $this->getIfOperStatus($port) == SwitchPortStatus::DOWN;
     }
 
     /**
@@ -89,7 +126,7 @@ class SwitchConnection
      */
     public function isPortUp(int $port): bool
     {
-        return true;
+        return $this->getIfOperStatus($port) == SwitchPortStatus::UP;
     }
 
 }

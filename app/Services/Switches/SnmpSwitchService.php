@@ -9,7 +9,8 @@
 namespace App\Services\Switches;
 
 
-use App\Repositories\Switches\SwitchRepository;
+use App\Repositories\Switches\SwitchConfigRepository;
+use App\Repositories\Switches\SwitchConnectionRepository;
 
 /**
  * Class SnmpSwitchService
@@ -18,21 +19,30 @@ use App\Repositories\Switches\SwitchRepository;
 class SnmpSwitchService
 {
     /**
-     * @var SwitchRepository
+     * @var SwitchConfigRepository
      */
-    protected $switchRepository;
+    protected $switchConfigRepository;
 
-    public function __construct(SwitchRepository $switchRepository)
+    /**
+     * @var SwitchConnectionRepository
+     */
+    protected $switchConnectionRepository;
+
+    public function __construct(SwitchConfigRepository $switchConfigRepository, SwitchConnectionRepository $switchConnectionRepository)
     {
-        $this->switchRepository = $switchRepository;
+        $this->switchConfigRepository = $switchConfigRepository;
+        $this->switchConnectionRepository = $switchConnectionRepository;
     }
 
     public function getAllStatuses()
     {
         $result = [];
-        $switches = $this->switchRepository->getAll();
-        dd($switches);
 
+        $switchConfigCollection = $this->switchConfigRepository->getAllEnabled();
+
+        $switchConnectionCollection = $this->switchConnectionRepository->connectTo($switchConfigCollection);
+
+        dd($switchConnectionCollection);
         return $result;
     }
 }

@@ -9,9 +9,10 @@
 namespace App\Collections\Auth;
 
 
-use Illuminate\Support\Collection;
+use App\Collections\NamedCollection;
+use App\Models\Auth\Token;
 
-class TokenCollection extends Collection
+class TokenCollection extends NamedCollection
 {
-
+    protected $name = Token::class;
 }

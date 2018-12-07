@@ -9,16 +9,25 @@
 namespace App\Repositories\Switches;
 
 
-use App\Collections\Switches\SwitchCollection;
+use App\Collections\Switches\SwitchConfigCollection;
 use App\Models\Switches\SwitchConfig;
 
-class SwitchRepository
+class SwitchConfigRepository
 {
-    public function getAll(): SwitchCollection
+    public function getAll(): SwitchConfigCollection
     {
         $switchArray = config('switches');
 
         return $this->map($switchArray);
+    }
+
+    public function getAllEnabled(): SwitchConfigCollection
+    {
+        $all = $this->getAll();
+
+        return $all->filter(function(SwitchConfig $switchConfig) {
+            return $switchConfig->isEnabled();
+        });
     }
 
     private function map(array $switchArray)
@@ -29,6 +38,6 @@ class SwitchRepository
             $result[] = SwitchConfig::createByConfig($switch);
         }
 
-        return new SwitchCollection($result);
+        return new SwitchConfigCollection($result);
     }
 }
