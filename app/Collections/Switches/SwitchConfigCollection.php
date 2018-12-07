@@ -14,5 +14,5 @@ use App\Models\Switches\SwitchConfig;
 
 class SwitchConfigCollection extends NamedCollection
 {
-    protected $name = SwitchConfig::class;
+    protected $class = SwitchConfig::class;
 }

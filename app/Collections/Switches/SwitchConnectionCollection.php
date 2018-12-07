@@ -14,5 +14,5 @@ use App\Models\Switches\SwitchConnection;
 
 class SwitchConnectionCollection extends NamedCollection
 {
-    protected $name = SwitchConnection::class;
+    protected $class = SwitchConnection::class;
 }

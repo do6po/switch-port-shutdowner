@@ -36,6 +36,11 @@ class SnmpSwitch
         return $this->ports;
     }
 
+    public function getConfig(): SwitchConfig
+    {
+        return $this->switchConfig;
+    }
+
     public static function create(
         SwitchConfig $switchConfig,
         SwitchStatus $switchStatus,

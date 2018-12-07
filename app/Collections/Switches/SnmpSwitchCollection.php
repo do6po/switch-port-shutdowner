@@ -14,5 +14,5 @@ use App\Models\Switches\SnmpSwitch;
 
 class SnmpSwitchCollection extends NamedCollection
 {
-    protected $name = SnmpSwitch::class;
+    protected $class = SnmpSwitch::class;
 }

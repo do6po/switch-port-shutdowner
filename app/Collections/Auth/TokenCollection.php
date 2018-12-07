@@ -14,5 +14,5 @@ use App\Models\Auth\Token;
 
 class TokenCollection extends NamedCollection
 {
-    protected $name = Token::class;
+    protected $class = Token::class;
 }

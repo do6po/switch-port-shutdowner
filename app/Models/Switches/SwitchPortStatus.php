@@ -54,6 +54,11 @@ class SwitchPortStatus
         return $this->portIndex;
     }
 
+    public function isUp(): bool
+    {
+        return $this->portStatus === self::UP;
+    }
+
     protected function setUp(): self
     {
         $this->portStatus = self::UP;

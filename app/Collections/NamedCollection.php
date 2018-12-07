@@ -10,20 +10,34 @@ namespace App\Collections;
 
 
 use App\Exceptions\Collections\NotAllowedTypeException;
+use App\Exceptions\Collections\NotFoundClassException;
 use Illuminate\Support\Collection;
 
-class NamedCollection extends Collection
+/**
+ * Class NamedCollection
+ * @package App\Collections
+ */
+abstract class NamedCollection extends Collection
 {
-    protected $name;
+    /**
+     * Class namespace
+     *
+     * @var string
+     */
+    protected $class;
 
     /**
      * NamedCollection constructor.
+     *
      * @param array $items
      * @throws NotAllowedTypeException
+     * @throws NotFoundClassException
      */
     public function __construct($items = [])
     {
-        $this->checkInstance($items);
+        $this->checkClassNamespace();
+        $this->checkInstances($items);
+
         parent::__construct($items);
     }
 
@@ -31,12 +45,31 @@ class NamedCollection extends Collection
      * @param $items
      * @throws NotAllowedTypeException
      */
-    protected function checkInstance($items)
+    protected function checkInstances($items)
     {
         foreach ($items as $item) {
-            if (!($item instanceof $this->name)) {
-                throw new NotAllowedTypeException();
-            }
+            $this->checkInstance($item);
+        }
+    }
+
+    /**
+     * @param $item
+     * @throws NotAllowedTypeException
+     */
+    protected function checkInstance($item): void
+    {
+        if (!($item instanceof $this->class)) {
+            throw new NotAllowedTypeException();
+        }
+    }
+
+    /**
+     * @throws NotFoundClassException
+     */
+    protected function checkClassNamespace()
+    {
+        if (empty($this->class)) {
+            throw new NotFoundClassException('Class must be filled');
         }
     }
 }

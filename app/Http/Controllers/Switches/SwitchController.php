@@ -34,11 +34,10 @@ class SwitchController extends Controller
      */
     public function index(Request $request)
     {
-        $statuses = $this->snmpSwitchService->getAllStatuses();
-
+        $snmpSwitches = $this->snmpSwitchService->getAllStatuses();
         return view('switches.index', [
             'params' => $request->all(),
-            'statuses' => $statuses,
+            'snmpSwitches' => $snmpSwitches,
         ]);
     }
 
