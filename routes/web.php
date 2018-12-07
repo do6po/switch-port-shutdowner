@@ -11,5 +11,5 @@
 |
 */
 
-Route::get('/down', 'Switches\HandlerController@down');
-Route::get('/up', 'Switches\HandlerController@up');
+Route::get('/down', 'Switches\SwitchController@down');
+Route::get('/up', 'Switches\SwitchController@up');

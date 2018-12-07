@@ -1,5 +1,4 @@
-/config/switches.php
-/config/secrets.php
+/switches.php
 /node_modules
 /public/hot
 /public/storage
