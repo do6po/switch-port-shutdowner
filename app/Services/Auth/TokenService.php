@@ -9,9 +9,9 @@
 namespace App\Services\Auth;
 
 
-use App\Http\Requests\Switches\HandlerRequest;
 use App\Models\Auth\Token;
 use App\Repositories\Auth\TokenRepository;
+use Illuminate\Http\Request;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class TokenService
@@ -26,13 +26,15 @@ class TokenService
         $this->repository = $repository;
     }
 
-    public function validate(HandlerRequest $request)
+    public function validate(Request $request)
     {
-        $userToken = Token::create($request->get('token'));
-        $tokens = $this->repository->getAll();
-        foreach ($tokens as $token) {
-            if ($token->compare($userToken)) {
-                return true;
+        if (!is_null($request->get('token'))) {
+            $userToken = Token::create($request->get('token'));
+            $tokens = $this->repository->getAll();
+            foreach ($tokens as $token) {
+                if ($token->compare($userToken)) {
+                    return true;
+                }
             }
         }
 

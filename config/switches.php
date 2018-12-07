@@ -6,4 +6,4 @@
  * Time: 18:49
  */
 
-return require '../switches.php';
+return require __DIR__ . '/../switches.php';

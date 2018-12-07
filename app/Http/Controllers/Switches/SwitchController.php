@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Switches;
 
-use App\Http\Requests\Switches\HandlerRequest;
+use App\Http\Middleware\Auth\TokenAuth;
 use App\Services\Auth\TokenService;
 use App\Http\Controllers\Controller;
 use App\Services\Switches\SnmpSwitchService;
+use Illuminate\Http\Request;
 
 class SwitchController extends Controller
 {
@@ -19,27 +20,27 @@ class SwitchController extends Controller
      */
     protected $snmpSwitchService;
 
-    public function __construct(TokenService $tokenService, SnmpSwitchService $snmpSwitchService)
+    public function __construct(SnmpSwitchService $snmpSwitchService)
     {
-        $this->tokenService = $tokenService;
+        $this->middleware(TokenAuth::class);
+
         $this->snmpSwitchService = $snmpSwitchService;
     }
 
-    public function down(HandlerRequest $request)
+    public function index()
     {
-        $this->tokenService->validate($request);
+        return view('switches.index', [
 
-        return view('switches.processed', [
-//            'log' => $log,
         ]);
     }
 
-    public function up(HandlerRequest $request)
+    public function down(Request $request)
     {
-        $log = 'all in up';
+        return redirect()->route('index', $request->all());
+    }
 
-        return view('switches.processed', [
-            'log' => $log,
-        ]);
+    public function up(Request $request)
+    {
+        return redirect()->route('index', $request->all());
     }
 }
