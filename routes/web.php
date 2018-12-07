@@ -12,5 +12,5 @@
 */
 
 Route::get('/', 'Switches\SwitchController@index')->name('index');
-Route::get('/down', 'Switches\SwitchController@down');
-Route::get('/up', 'Switches\SwitchController@up');
+Route::get('/down', 'Switches\SwitchController@down')->name('down');
+Route::get('/up', 'Switches\SwitchController@up')->name('up');

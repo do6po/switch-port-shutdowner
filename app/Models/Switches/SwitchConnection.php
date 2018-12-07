@@ -1,51 +1,42 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: box
+ * Date: 07.12.18
+ * Time: 12:03
+ */
 
 namespace App\Models\Switches;
-
 use \SNMP;
 
-class SnmpSwitch
+/**
+ * Class SwitchConnection
+ * @package App\Models\Switches
+ */
+class SwitchConnection
 {
-    const OID_IF_ADMIN_STATUS = '.1.3.6.1.2.1.2.2.1.7';
+    /**
+     * @var SNMP
+     */
+    protected $connection;
 
-    const UP = 1;
-
-    const DOWN = 2;
-
-    public $name = '';
-
-    public $ip = '';
-
-    public $snmpCommunity = 'private';
-
-    public $snmpVersion = SNMP::VERSION_2c;
-
-    public $timeout = 1000000; //microseconds
-
-    public $processedPorts = [];
-
-    public function __construct()
+    /**
+     * @param SwitchConfig $switchConfig
+     * @return SwitchConnection
+     */
+    public static function connect(SwitchConfig $switchConfig)
     {
+        $connection = new self;
+        $connection->connection = new SNMP(
+            $switchConfig->snmpVersion,
+            $switchConfig->ip,
+            $switchConfig->snmpCommunity,
+            $switchConfig->timeout
+        );
 
+        return $connection;
     }
 
-    public static function createByConfig(array $config): self
-    {
-        $switch = new self;
-        $switch->name = $config['name'];
-        $switch->name = $config['ip'];
-        $switch->name = $config['snmpCommunity'];
-        $switch->name = $config['snmpVersion'];
-        $switch->name = $config['timeout'];
-        $switch->name = $config['processedPorts'];
-
-        return $switch;
-    }
-
-    public function connect(): bool
-    {
-        return true;
-    }
 
     public function isConnected(): bool
     {
@@ -96,8 +87,9 @@ class SnmpSwitch
      * @param int $port
      * @return bool
      */
-    public function isOPortUp(int $port): bool
+    public function isPortUp(int $port): bool
     {
         return true;
     }
+
 }

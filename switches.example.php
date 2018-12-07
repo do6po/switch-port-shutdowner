@@ -17,6 +17,7 @@ return [
         'processedPorts' => [
             1, 2, 3, 4
         ],
+        'enabled' => false,
     ],
     */
 ];

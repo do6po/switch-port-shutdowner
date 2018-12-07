@@ -27,20 +27,37 @@ class SwitchController extends Controller
         $this->snmpSwitchService = $snmpSwitchService;
     }
 
-    public function index()
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function index(Request $request)
     {
-        return view('switches.index', [
+        $statuses = $this->snmpSwitchService->getAllStatuses();
 
+        return view('switches.index', [
+            'params' => $request->all(),
+            'statuses' => $statuses,
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function down(Request $request)
     {
-        return redirect()->route('index', $request->all());
+        return redirect()
+            ->route('index', $request->all());
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function up(Request $request)
     {
-        return redirect()->route('index', $request->all());
+        return redirect()
+            ->route('index', $request->all());
     }
 }
